@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeitleiste 1914–1945 – horizontal scrollend</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#0f172a; --muted:#5f6368; --line:#c7cacf; --accent:#1a73e8;
+    --card:#f7f9fc; --ink:#0b3a91; --shadow:0 8px 24px rgba(0,0,0,.10);
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.45}
+  .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+  header h1{font-size:clamp(1.3rem,2.4vw,1.8rem);margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 12px}
+
+  /* Abschnittsrahmen */
+  section{margin:18px 0 28px}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+  .section-head h2{font-size:clamp(1.05rem,2vw,1.3rem);margin:0}
+  .range{color:var(--muted);font-weight:600}
+
+  /* Scroll-Container */
+  .scroller{
+    position:relative;
+    overflow-x:auto; overflow-y:visible;
+    border:1px solid #e6e9ee; border-radius:14px; background:#fff;
+    box-shadow:var(--shadow);
+  }
+  .scroller:focus{outline:2px solid var(--accent)}
+  /* Track ist breiter als der Viewport und bekommt dynamisch JS-Breite */
+  .track{
+    position:relative;
+    height:340px; /* Platz für Labels & Popovers */
+    min-width:100%;
+    background-image: linear-gradient(to right, var(--line) 0 100%);
+    background-size: 100% 2px;
+    background-repeat:no-repeat;
+    background-position: 0 60%;
+  }
+
+  /* Jahr-Markierungen (Hilfsskala) */
+  .tick{
+    position:absolute; top:58%;
+    width:1px; height:12px; background:#b7bdc6;
+  }
+  .tick .tlabel{
+    position:absolute; top:16px; left:-18px; width:36px; text-align:center;
+    font-size:.8rem; color:#8a919a;
+  }
+
+  /* Ereignisse */
+  details.event{
+    position:absolute; /* links wird per JS gesetzt */
+    bottom:120px; /* Position relativ zur Linie */
+    width:280px; /* Standard-Kartenbreite */
+  }
+  details.event summary{
+    cursor:pointer; list-style:none; outline:none;
+    display:flex; align-items:center; gap:10px;
+    border-radius:10px; padding:8px 10px;
+    transition:background .2s ease;
+  }
+  details.event summary::-webkit-details-marker{display:none}
+  details.event[open] summary{background:#f8faff}
+  .dot{
+    width:14px; height:14px; border-radius:50%; background:var(--accent);
+    box-shadow:0 0 0 5px #1a73e81a;
+  }
+  .title{font-weight:700}
+  .date{color:var(--muted); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+  /* Popover Karte */
+  .content{
+    margin-top:8px; background:var(--card); border:1px solid #e7ebf0; border-radius:12px; padding:12px 14px;
+    box-shadow:var(--shadow);
+  }
+  .content p{margin:.2rem 0}
+  .content ul{margin:.4rem 0 0 18px}
+  .content li{margin:.2rem 0}
+  a.more{font-weight:600; text-decoration:none}
+
+  /* Sticky Hinweisleiste */
+  .tools{
+    display:flex; gap:10px; align-items:center; margin:8px 0 10px;
+  }
+  .btn{border:1px solid #d2d6dc;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
+  .btn:hover{background:#f6f8fb}
+  .hint{color:#6b7280; font-size:.9rem}
+
+  @media (max-width:700px){
+    .track{height:380px}
+    details.event{width:260px; bottom:140px}
+  }
+  @media print{
+    .wrap{max-width:100%;margin:0;padding:0 12mm}
+    .scroller{overflow:visible; border:0; box-shadow:none}
+    .track{height:auto; background-position:0 0}
+    details.event{position:static; width:auto}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Zeitleiste: Weimarer Republik, NS‑Herrschaft & Zweiter Weltkrieg (1914–1945)</h1>
+      <p class="lead">Jeder Abschnitt hat eine zusammenhängende, <strong>horizontal scrollende</strong> Leiste. Ereignisse sind zeitproportional positioniert. Klicken Sie auf die Überschrift zum Aufklappen.</p>
+      <div class="tools">
+        <button class="btn" id="openAll">Alle öffnen</button>
+        <button class="btn" id="closeAll">Alle schließen</button>
+        <span class="hint">Tipp: Shift+Mausrad oder Pfeiltasten zum horizontalen Scrollen.</span>
+      </div>
+    </header>
+
+    <!-- Abschnitt 1 -->
+    <section>
+      <div class="section-head">
+        <h2>1) Erster Weltkrieg → Machtübernahme</h2>
+        <span class="range">Start: 28.07.1914 · Ende: 30.01.1933</span>
+      </div>
+      <div class="scroller" tabindex="0">
+        <div class="track" data-start="1914-07-28" data-end="1933-01-30" data-ticks="1915,1920,1925,1930">
+          <!-- Ereignisse -->
+          <details class="event" data-date="1918-11-10">
+            <summary><span class="dot"></span><span class="date">09.–11.11.1918</span> <span class="title">Novemberrevolution & Abdankung</span></summary>
+            <div class="content"><p>Ende der Monarchie, Beginn der Weimarer Republik; 11.11. Waffenstillstand von Compiègne.</p></div>
+          </details>
+          <details class="event" data-date="1919-06-28">
+            <summary><span class="dot"></span><span class="date">28.06.1919</span> <span class="title">Versailler Vertrag</span></summary>
+            <div class="content"><p>Gebietsverluste, Reparationen, „Kriegsschuldartikel“; innenpolitisch stark umstritten.</p></div>
+          </details>
+          <details class="event" data-date="1923-11-09">
+            <summary><span class="dot"></span><span class="date">08./09.11.1923</span> <span class="title">Hitler‑Ludendorff‑Putsch</span></summary>
+            <div class="content"><p>NSDAP zunächst verboten; Hitler in Haft (1924).</p></div>
+          </details>
+          <details class="event" data-date="1926-09-08">
+            <summary><span class="dot"></span><span class="date">1924–1929</span> <span class="title">Stabilisierungsjahre</span></summary>
+            <div class="content"><p>u. a. Dawes/Young‑Plan, Völkerbundbeitritt 1926; relative Beruhigung, wirtschaftliche Erholung.</p></div>
+          </details>
+          <details class="event" data-date="1929-10-24">
+            <summary><span class="dot"></span><span class="date">ab 10/1929</span> <span class="title">Weltwirtschaftskrise</span></summary>
+            <div class="content"><p>Massenarbeitslosigkeit → Radikalisierung; Stimmenzuwächse für NSDAP und KPD.</p></div>
+          </details>
+          <details class="event" data-date="1931-06-01">
+            <summary><span class="dot"></span><span class="date">1930–1932</span> <span class="title">Präsidialkabinette</span></summary>
+            <div class="content"><p>Keine Mehrheiten; Regieren per Notverordnung. Aushöhlung der parlamentarischen Demokratie.</p></div>
+          </details>
+          <details class="event" data-date="1932-07-31">
+            <summary><span class="dot"></span><span class="date">07 & 11/1932</span> <span class="title">Reichstagswahlen</span></summary>
+            <div class="content"><p>NSDAP stärkste Partei – ohne absolute Mehrheit.</p></div>
+          </details>
+          <details class="event" data-date="1933-01-30">
+            <summary><span class="dot"></span><span class="date">30.01.1933</span> <span class="title">Hitler wird Reichskanzler</span></summary>
+            <div class="content"><p>Koalition bzw. Duldung der Konservativen; Diktatur entsteht in den Folgemonaten.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abschnitt 2 -->
+    <section>
+      <div class="section-head">
+        <h2>2) Machtübernahme → Kriegsbeginn</h2>
+        <span class="range">Start: 30.01.1933 · Ende: 31.08.1939</span>
+      </div>
+      <div class="scroller" tabindex="0">
+        <div class="track" data-start="1933-01-30" data-end="1939-08-31" data-ticks="1933,1935,1937,1939">
+          <details class="event" data-date="1933-02-28">
+            <summary><span class="dot"></span><span class="date">27./28.02.1933</span> <span class="title">Reichstagsbrand & Verordnung</span></summary>
+            <div class="content"><p>Suspendierung zentraler Grundrechte; Verhaftungen politischer Gegner.</p></div>
+          </details>
+          <details class="event" data-date="1933-03-23">
+            <summary><span class="dot"></span><span class="date">23.03.1933</span> <span class="title">Ermächtigungsgesetz</span></summary>
+            <div class="content"><p>Regierung kann ohne Parlament gesetzgeben – Grundlage der Diktatur.</p></div>
+          </details>
+          <details class="event" data-date="1933-06-30">
+            <summary><span class="dot"></span><span class="date">03–07/1933</span> <span class="title">Gleichschaltung</span></summary>
+            <div class="content"><p>Länder unterworfen, Parteienverbot, Kontrolle von Verwaltung, Kultur, Vereinen.</p></div>
+          </details>
+          <details class="event" data-date="1933-03-22">
+            <summary><span class="dot"></span><span class="date">22.03.1933</span> <span class="title">KZ Dachau eröffnet</span></summary>
+            <div class="content"><p>Früh als Lager für politische Gegner; Ausbau des KZ‑Systems.</p></div>
+          </details>
+          <details class="event" data-date="1933-04-01">
+            <summary><span class="dot"></span><span class="date">01.04.1933</span> <span class="title">Boykott jüdischer Geschäfte</span></summary>
+            <div class="content"><p>Beginn der systematischen Ausgrenzung; 07.04. Berufsbeamtengesetz.</p></div>
+          </details>
+          <details class="event" data-date="1934-06-30">
+            <summary><span class="dot"></span><span class="date">30.06.–02.07.1934</span> <span class="title">„Röhm‑Putsch“</span></summary>
+            <div class="content"><p>Nacht der langen Messer: Ausschaltung der SA‑Spitze; Machtfestigung Hitlers.</p></div>
+          </details>
+          <details class="event" data-date="1934-08-02">
+            <summary><span class="dot"></span><span class="date">02.08.1934</span> <span class="title">Tod Hindenburgs</span></summary>
+            <div class="content"><p>Hitler vereint Ämter (Führer und Reichskanzler); Wehrmacht leistet Führereid.</p></div>
+          </details>
+          <details class="event" data-date="1935-09-15">
+            <summary><span class="dot"></span><span class="date">15.09.1935</span> <span class="title">Nürnberger Gesetze</span></summary>
+            <div class="content"><p>Entzug der Bürgerrechte für Juden; „Blutschutz“‑Regelungen.</p></div>
+          </details>
+          <details class="event" data-date="1935-03-16">
+            <summary><span class="dot"></span><span class="date">16.03.1935</span> <span class="title">Wehrpflicht & Aufrüstung</span></summary>
+            <div class="content"><p>Bruch von Versailles; 03/1936: Remilitarisierung des Rheinlands.</p></div>
+          </details>
+          <details class="event" data-date="1936-10-01">
+            <summary><span class="dot"></span><span class="date">1936</span> <span class="title">Vierjahresplan & Achse Berlin–Rom</span></summary>
+            <div class="content"><p>Autarkie/Aufrüstung; Unterstützung Francos im Spanischen Bürgerkrieg.</p></div>
+          </details>
+          <details class="event" data-date="1938-03-12">
+            <summary><span class="dot"></span><span class="date">12./13.03.1938</span> <span class="title">„Anschluss“ Österreichs</span></summary>
+            <div class="content"><p>Eingliederung in das Deutsche Reich.</p></div>
+          </details>
+          <details class="event" data-date="1938-09-30">
+            <summary><span class="dot"></span><span class="date">29./30.09.1938</span> <span class="title">Münchner Abkommen</span></summary>
+            <div class="content"><p>Sudetenland an Deutschland (Appeasement).</p></div>
+          </details>
+          <details class="event" data-date="1938-11-09">
+            <summary><span class="dot"></span><span class="date">09./10.11.1938</span> <span class="title">Novemberpogrome</span></summary>
+            <div class="content"><p>Synagogen/Geschäfte zerstört, Massenverhaftungen – Eskalation der Verfolgung.</p></div>
+          </details>
+          <details class="event" data-date="1939-03-15">
+            <summary><span class="dot"></span><span class="date">15.03.1939</span> <span class="title">Besetzung Rest‑Tschechiens</span></summary>
+            <div class="content"><p>Protektorat Böhmen & Mähren – Ende der Münchner Ordnung.</p></div>
+          </details>
+          <details class="event" data-date="1939-08-23">
+            <summary><span class="dot"></span><span class="date">23.08.1939</span> <span class="title">Hitler‑Stalin‑Pakt</span></summary>
+            <div class="content"><p>Nichtangriffspakt mit Geheimprotokoll – Wegbereiter des Angriffs auf Polen.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abschnitt 3 -->
+    <section>
+      <div class="section-head">
+        <h2>3) Kriegsbeginn → Kapitulation</h2>
+        <span class="range">Start: 01.09.1939 · Ende: 08.05.1945</span>
+      </div>
+      <div class="scroller" tabindex="0">
+        <div class="track" data-start="1939-09-01" data-end="1945-05-08" data-ticks="1940,1942,1944">
+          <details class="event" data-date="1939-09-01">
+            <summary><span class="dot"></span><span class="date">01.09.1939</span> <span class="title">Überfall auf Polen</span></summary>
+            <div class="content"><p>Beginn des Zweiten Weltkriegs; 03.09.: Kriegserklärungen GB & FR.</p></div>
+          </details>
+          <details class="event" data-date="1940-04-09">
+            <summary><span class="dot"></span><span class="date">04–06/1940</span> <span class="title">Norden & Westfeldzug</span></summary>
+            <div class="content">
+              <ul>
+                <li>09.04.: Dänemark & Norwegen</li>
+                <li>05–06/1940: Benelux & Frankreich; 22.06.: Waffenstillstand</li>
+                <li>07–10/1940: Luftschlacht um England (scheitert), ab 09/1940 „Blitz“</li>
+              </ul>
+            </div>
+          </details>
+          <details class="event" data-date="1941-04-06">
+            <summary><span class="dot"></span><span class="date">04/1941</span> <span class="title">Balkanfeldzug</span></summary>
+            <div class="content"><p>Jugoslawien & Griechenland.</p></div>
+          </details>
+          <details class="event" data-date="1941-06-22">
+            <summary><span class="dot"></span><span class="date">22.06.1941</span> <span class="title">Unternehmen Barbarossa (kompakt)</span></summary>
+            <div class="content">
+              <p>Angriff auf die Sowjetunion; rassenideologisch motivierter Vernichtungskrieg; Massenmorde durch Einsatzgruppen.</p>
+              <p><a class="more" href="https://www.bpb.de/kurz-knapp/hintergrund-aktuell/229431/22-juni-1941-ueberfall-auf-die-sowjetunion/" target="_blank" rel="noopener">Mehr erfahren (bpb)</a> ·
+                 <a class="more" href="https://www.dhm.de/lemo/kapitel/der-zweite-weltkrieg/kriegsverlauf/ueberfall-auf-die-sowjetunion-1941" target="_blank" rel="noopener">LeMO/DHM</a> ·
+                 <a class="more" href="https://encyclopedia.ushmm.org/content/de/article/invasion-of-the-soviet-union-june-1941" target="_blank" rel="noopener">USHMM</a></p>
+            </div>
+          </details>
+          <details class="event" data-date="1941-12-07">
+            <summary><span class="dot"></span><span class="date">07–12/1941</span> <span class="title">Krieg wird global</span></summary>
+            <div class="content"><p>07.12.: Japan greift Pearl Harbor an; 11.12.: Deutschland erklärt den USA den Krieg.</p></div>
+          </details>
+          <details class="event" data-date="1942-01-20">
+            <summary><span class="dot"></span><span class="date">20.01.1942</span> <span class="title">Wannsee‑Konferenz</span></summary>
+            <div class="content"><p>Koordination der „Endlösung der Judenfrage“ (Holocaust).</p></div>
+          </details>
+          <details class="event" data-date="1942-10-23">
+            <summary><span class="dot"></span><span class="date">10/1942–05/1943</span> <span class="title">Afrika & Wende</span></summary>
+            <div class="content"><p>El Alamein; Ende Afrikafeldzug (05/1943 Tunesien). 07/1942–02/1943: Stalingrad – Wendepunkt.</p></div>
+          </details>
+          <details class="event" data-date="1943-08-01">
+            <summary><span class="dot"></span><span class="date">07–09/1943</span> <span class="title">Kursk & Italien</span></summary>
+            <div class="content"><p>Kursk (größte Panzerschlacht); 08/09: Sturz Mussolinis; 08.09.: italienischer Waffenstillstand.</p></div>
+          </details>
+          <details class="event" data-date="1944-06-06">
+            <summary><span class="dot"></span><span class="date">06.06.1944</span> <span class="title">D‑Day & Befreiung</span></summary>
+            <div class="content"><p>Alliierte Landungen in der Normandie; 08/1944 Befreiung von Paris.</p></div>
+          </details>
+          <details class="event" data-date="1944-07-20">
+            <summary><span class="dot"></span><span class="date">20.07.1944</span> <span class="title">Attentat auf Hitler</span></summary>
+            <div class="content"><p>Stauffenberg scheitert; Repressionswelle.</p></div>
+          </details>
+          <details class="event" data-date="1945-01-27">
+            <summary><span class="dot"></span><span class="date">27.01.1945</span> <span class="title">Auschwitz befreit</span></summary>
+            <div class="content"><p>Weitere Lager: Buchenwald 11.04., Dachau 29.04.</p></div>
+          </details>
+          <details class="event" data-date="1945-05-08">
+            <summary><span class="dot"></span><span class="date">04–05/1945</span> <span class="title">Berlin & Kapitulation</span></summary>
+            <div class="content"><p>16.04.–02.05.: Schlacht um Berlin; 30.04.: Hitlers Suizid; 07./08.05.: Kapitulation (Reims; Berlin‑Karlshorst).</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <footer class="lead" style="margin-top:18px">
+      <strong>Bearbeitung:</strong> Neue Ereignisse als <code>&lt;details class="event" data-date="YYYY-MM-DD"&gt;</code> hinzufügen. 
+      Monat genügt auch: <code>YYYY-MM</code>. Für die Zeitskala je Abschnitt Start/Ende in <code>.track</code> anpassen.
+    </footer>
+  </div>
+
+<script>
+(function(){
+  // Parameter: Pixel pro Jahr
+  const PX_PER_YEAR = 220; // Skala – je größer, desto breiter die Leisten
+
+  // Hilfsfunktionen
+  const toDate = (s) => {
+    if(!s) return null;
+    // akzeptiere YYYY, YYYY-MM, YYYY-MM-DD
+    const parts = s.split('-').map(Number);
+    if(parts.length === 1){ return new Date(parts[0], 0, 1); }
+    if(parts.length === 2){ return new Date(parts[0], parts[1]-1, 1); }
+    return new Date(parts[0], (parts[1]||1)-1, parts[2]||1);
+  };
+  const yearsBetween = (a,b) => (b - a) / (365.2425*24*3600*1000);
+
+  // Jede Track-Leiste initialisieren
+  document.querySelectorAll('.track').forEach(track => {
+    const start = toDate(track.dataset.start);
+    const end = toDate(track.dataset.end);
+    const years = Math.max(1, yearsBetween(start,end));
+    const width = Math.max(track.clientWidth, Math.round(years * PX_PER_YEAR));
+    track.style.width = width + 'px';
+
+    // Hilfsticks (Jahresmarken)
+    const tickYears = (track.dataset.ticks || '').split(',').map(s=>parseInt(s.trim())).filter(Boolean);
+    tickYears.forEach(y => {
+      const d = new Date(y,0,1);
+      const x = Math.max(0, Math.min(1, (d - start) / (end - start))) * width;
+      const t = document.createElement('div');
+      t.className = 'tick';
+      t.style.left = (x|0) + 'px';
+      const lab = document.createElement('div');
+      lab.className = 'tlabel';
+      lab.textContent = y;
+      t.appendChild(lab);
+      track.appendChild(t);
+    });
+
+    // Ereignisse positionieren
+    track.querySelectorAll('details.event').forEach(ev => {
+      const d = toDate(ev.dataset.date);
+      if(!d) return;
+      const ratio = (d - start) / (end - start);
+      const x = Math.max(0, Math.min(1, ratio)) * width;
+      ev.style.left = Math.round(x - 8) + 'px'; // -8px, damit die Dot über der Linie zentriert
+    });
+  });
+
+  // Öffnen/Schließen global
+  const allDetails = () => Array.from(document.querySelectorAll('details.event'));
+  document.getElementById('openAll').addEventListener('click', ()=> allDetails().forEach(d => d.open = true));
+  document.getElementById('closeAll').addEventListener('click', ()=> allDetails().forEach(d => d.open = false));
+
+  // Pfeiltasten für den zuletzt fokussierten Scroller
+  let activeScroller = null;
+  document.querySelectorAll('.scroller').forEach(sc => {
+    sc.addEventListener('mouseenter', ()=> activeScroller = sc);
+    sc.addEventListener('focus', ()=> activeScroller = sc);
+    sc.addEventListener('mouseleave', ()=> activeScroller = null);
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(!activeScroller) return;
+    const step = (e.shiftKey ? 200 : 80);
+    if(e.key === 'ArrowRight'){ activeScroller.scrollLeft += step; }
+    if(e.key === 'ArrowLeft'){ activeScroller.scrollLeft -= step; }
+  });
+})();
+</script>
+</body>
+</html>
