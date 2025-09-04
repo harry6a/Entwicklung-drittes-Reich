@@ -8,6 +8,7 @@
   :root{
     --bg:#ffffff; --fg:#0f172a; --muted:#5f6368; --line:#c7cacf; --accent:#1a73e8;
     --card:#f7f9fc; --shadow:0 10px 24px rgba(0,0,0,.10);
+    --lane-gap: 90px; /* Abstand zwischen Lanes (mehr = luftiger) */
   }
   html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
@@ -30,9 +31,9 @@
     border:1px solid #e6e9ee; border-radius:14px; background:#fff; box-shadow:var(--shadow)}
   .scroller:focus{outline:2px solid var(--accent)}
 
-  /* Track: die Linie */
+  /* Track: die mittlere Zeitlinie */
   .track{
-    position:relative; height:460px; min-width:100%;
+    position:relative; height:540px; min-width:100%;
     background:linear-gradient(to right, var(--line) 0 100%);
     background-repeat:no-repeat; background-size:100% 2px; background-position:0 50%;
   }
@@ -41,12 +42,12 @@
   .tick{position:absolute; top:calc(50% - 6px); width:1px; height:12px; background:#b7bdc6;}
   .tick .tlabel{position:absolute; top:14px; left:-18px; width:36px; text-align:center; font-size:.82rem; color:#8a919a;}
 
-  /* Ereignis-Container (absolut positioniert) */
+  /* Ereignis-Container */
   details.event{ position:absolute; width:290px; }
   details.event summary{ list-style:none; outline:none; cursor:pointer; }
   details.event summary::-webkit-details-marker{display:none}
 
-  /* Marker & Stiel */
+  /* Stiel + Punkt */
   .stem{ position:absolute; left:0; width:2px; background:#9db2ff; }
   .dot{ position:absolute; left:-6px; width:12px; height:12px; border-radius:50%; background:var(--accent);
         box-shadow:0 0 0 6px #1a73e81a; }
@@ -58,7 +59,7 @@
     box-shadow:var(--shadow);
   }
   .title{font-weight:800}
-  .date{color:var(--muted); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .date{color:#6b7280; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
 
   /* Zusatzinhalt */
   .content{ margin-top:8px; background:var(--card); border:1px solid #e7ebf0; border-radius:12px; padding:10px 12px; box-shadow:var(--shadow) }
@@ -66,13 +67,12 @@
   .content ul{margin:.4rem 0 0 18px}
   .content li{margin:.2rem 0}
 
-  /* Lanes: vertikale Abstände ober/unter der Linie */
-  :root{ --lane-gap: 70px; /* Abstand zwischen Text-Lanes */ }
-  .top    { transform: translateY(calc(-1 * var(--lane) * var(--lane-gap))); }  /* oberhalb */
-  .bottom { transform: translateY(calc(+1 * var(--lane) * var(--lane-gap))); }  /* unterhalb */
+  /* Lanes: vertikale Staffelung ober/unter der Linie */
+  .top    { transform: translateY(calc(-1 * var(--lane) * var(--lane-gap))); }   /* oberhalb */
+  .bottom { transform: translateY(calc(+1 * var(--lane) * var(--lane-gap))); }   /* unterhalb */
 
   @media (max-width:700px){
-    .track{height:520px}
+    .track{height:600px}
     details.event{width:260px}
     .label{max-width:240px}
   }
@@ -88,11 +88,11 @@
 <body>
 <div class="wrap">
   <h1>Zeitleiste (gestaffelte Labels): Weimarer Republik, NS-Herrschaft & Zweiter Weltkrieg</h1>
-  <p class="lead">Ereignisse liegen auf einer gemeinsamen Linie; Beschriftungen werden abwechselnd <b>oberhalb</b> und <b>unterhalb</b> in Lanes angeordnet und mit einem Stiel verbunden. Zeitliche Position bleibt proportional.</p>
+  <p class="lead">Labels werden abwechselnd <b>oberhalb</b>/<b>unterhalb</b> in Lanes angeordnet und mit einem Stiel an die Zeitlinie gekoppelt. Pro Abschnitt eigener Maßstab via <code>data-ppyear</code>.</p>
   <div class="tools">
     <button class="btn" id="openAll">Alle öffnen</button>
     <button class="btn" id="closeAll">Alle schließen</button>
-    <span class="hint">Tipp: Shift+Mausrad / Pfeiltasten für horizontales Scrollen.</span>
+    <span class="hint">Tipp: Shift+Mausrad / Pfeiltasten scrollen horizontal.</span>
   </div>
 
   <!-- Abschnitt 1 -->
@@ -102,15 +102,19 @@
       <span class="range">Start: 28.07.1914 · Ende: 30.01.1933</span>
     </div>
     <div class="scroller" tabindex="0">
-      <div class="track" data-start="1914-07-28" data-end="1933-01-30" data-ticks="1915,1920,1925,1930">
+      <div class="track"
+           data-start="1914-07-28"
+           data-end="1933-01-30"
+           data-ppyear="320"
+           data-ticks="1915,1920,1925,1930">
         <!-- Events -->
         <details class="event" data-date="1918-11-10" data-side="top">
           <summary class="label"><span class="date">09.–11.11.1918</span> — <span class="title">Novemberrevolution & Abdankung</span></summary>
-          <div class="content"><p>Ende der Monarchie, Beginn der Weimarer Republik; 11.11. Waffenstillstand.</p></div>
+          <div class="content"><p>Ende der Monarchie; 11.11. Waffenstillstand.</p></div>
         </details>
         <details class="event" data-date="1919-06-28" data-side="bottom">
           <summary class="label"><span class="date">28.06.1919</span> — <span class="title">Versailler Vertrag</span></summary>
-          <div class="content"><p>Gebietsverluste, Reparationen, „Kriegsschuldartikel“; innenpolitisch stark umstritten.</p></div>
+          <div class="content"><p>Gebietsverluste, Reparationen, „Kriegsschuldartikel“.</p></div>
         </details>
         <details class="event" data-date="1923-11-09" data-side="top">
           <summary class="label"><span class="date">08./09.11.1923</span> — <span class="title">Hitler-Ludendorff-Putsch</span></summary>
@@ -118,7 +122,7 @@
         </details>
         <details class="event" data-date="1926-09-08" data-side="bottom">
           <summary class="label"><span class="date">1924–1929</span> — <span class="title">Stabilisierungsjahre</span></summary>
-          <div class="content"><p>Dawes/Young-Plan; Völkerbund 1926; wirtschaftliche Erholung.</p></div>
+          <div class="content"><p>Dawes/Young-Plan; Völkerbund 1926; Erholung.</p></div>
         </details>
         <details class="event" data-date="1929-10-24" data-side="top">
           <summary class="label"><span class="date">ab 10/1929</span> — <span class="title">Weltwirtschaftskrise</span></summary>
@@ -126,15 +130,15 @@
         </details>
         <details class="event" data-date="1931-06-01" data-side="bottom">
           <summary class="label"><span class="date">1930–1932</span> — <span class="title">Präsidialkabinette</span></summary>
-          <div class="content"><p>Regieren per Notverordnung; Aushöhlung der Demokratie.</p></div>
+          <div class="content"><p>Regieren per Notverordnung; Aushöhlung des Parlaments.</p></div>
         </details>
         <details class="event" data-date="1932-07-31" data-side="top">
           <summary class="label"><span class="date">07 & 11/1932</span> — <span class="title">Reichstagswahlen</span></summary>
-          <div class="content"><p>NSDAP stärkste Partei – ohne absolute Mehrheit.</p></div>
+          <div class="content"><p>NSDAP stärkste Partei ohne absolute Mehrheit.</p></div>
         </details>
         <details class="event" data-date="1933-01-30" data-side="bottom">
           <summary class="label"><span class="date">30.01.1933</span> — <span class="title">Hitler wird Reichskanzler</span></summary>
-          <div class="content"><p>Koalition/Duldung der Konservativen; Beginn der Diktaturformation.</p></div>
+          <div class="content"><p>Koalition/Duldung Konservativer; Beginn der Diktaturbildung.</p></div>
         </details>
       </div>
     </div>
@@ -147,7 +151,11 @@
       <span class="range">Start: 30.01.1933 · Ende: 31.08.1939</span>
     </div>
     <div class="scroller" tabindex="0">
-      <div class="track" data-start="1933-01-30" data-end="1939-08-31" data-ticks="1933,1935,1937,1939">
+      <div class="track"
+           data-start="1933-01-30"
+           data-end="1939-08-31"
+           data-ppyear="350"
+           data-ticks="1933,1935,1937,1939">
         <details class="event" data-date="1933-02-28" data-side="top">
           <summary class="label"><span class="date">27./28.02.1933</span> — <span class="title">Reichstagsbrand & Verordnung</span></summary>
           <div class="content"><p>Aussetzung zentraler Grundrechte; Verhaftungen.</p></div>
@@ -162,7 +170,7 @@
         </details>
         <details class="event" data-date="1933-03-22" data-side="bottom">
           <summary class="label"><span class="date">22.03.1933</span> — <span class="title">KZ Dachau</span></summary>
-          <div class="content"><p>Frühlager für politische Gegner; Ausbau des KZ-Systems.</p></div>
+          <div class="content"><p>Frühlager für politische Gegner; Ausbau KZ-System.</p></div>
         </details>
         <details class="event" data-date="1933-04-01" data-side="top">
           <summary class="label"><span class="date">01.04.1933</span> — <span class="title">Boykott jüdischer Geschäfte</span></summary>
@@ -170,7 +178,7 @@
         </details>
         <details class="event" data-date="1934-06-30" data-side="bottom">
           <summary class="label"><span class="date">30.06.–02.07.1934</span> — <span class="title">„Röhm-Putsch“</span></summary>
-          <div class="content"><p>Ausschaltung der SA-Spitze; Machtfestigung.</p></div>
+          <div class="content"><p>Ausschaltung SA-Spitze; Machtfestigung.</p></div>
         </details>
         <details class="event" data-date="1934-08-02" data-side="top">
           <summary class="label"><span class="date">02.08.1934</span> — <span class="title">Tod Hindenburgs</span></summary>
@@ -178,7 +186,7 @@
         </details>
         <details class="event" data-date="1935-09-15" data-side="bottom">
           <summary class="label"><span class="date">15.09.1935</span> — <span class="title">Nürnberger Gesetze</span></summary>
-          <div class="content"><p>Entzug der Bürgerrechte für Juden; „Blutschutz“.</p></div>
+          <div class="content"><p>Entzug von Bürgerrechten für Juden.</p></div>
         </details>
         <details class="event" data-date="1935-03-16" data-side="top">
           <summary class="label"><span class="date">16.03.1935</span> — <span class="title">Wehrpflicht & Aufrüstung</span></summary>
@@ -198,7 +206,7 @@
         </details>
         <details class="event" data-date="1938-11-09" data-side="top">
           <summary class="label"><span class="date">09./10.11.1938</span> — <span class="title">Novemberpogrome</span></summary>
-          <div class="content"><p>Synagogen/Geschäfte zerstört, Massenverhaftungen.</p></div>
+          <div class="content"><p>Synagogen/Geschäfte zerstört; Massenverhaftungen.</p></div>
         </details>
         <details class="event" data-date="1939-03-15" data-side="bottom">
           <summary class="label"><span class="date">15.03.1939</span> — <span class="title">Besetzung Rest-Tschechiens</span></summary>
@@ -219,7 +227,11 @@
       <span class="range">Start: 01.09.1939 · Ende: 08.05.1945</span>
     </div>
     <div class="scroller" tabindex="0">
-      <div class="track" data-start="1939-09-01" data-end="1945-05-08" data-ticks="1940,1942,1944">
+      <div class="track"
+           data-start="1939-09-01"
+           data-end="1945-05-08"
+           data-ppyear="390"
+           data-ticks="1940,1942,1944">
         <details class="event" data-date="1939-09-01" data-side="top">
           <summary class="label"><span class="date">01.09.1939</span> — <span class="title">Überfall auf Polen</span></summary>
           <div class="content"><p>Beginn des Zweiten Weltkriegs; 03.09. Kriegserklärungen GB & FR.</p></div>
@@ -240,7 +252,7 @@
         </details>
         <details class="event" data-date="1941-06-22" data-side="bottom">
           <summary class="label"><span class="date">22.06.1941</span> — <span class="title">Unternehmen Barbarossa</span></summary>
-          <div class="content"><p>Angriff auf die Sowjetunion; Vernichtungskrieg; Massenmorde durch Einsatzgruppen.</p></div>
+          <div class="content"><p>Angriff auf die Sowjetunion; Vernichtungskrieg; Massaker der Einsatzgruppen.</p></div>
         </details>
         <details class="event" data-date="1941-12-07" data-side="top">
           <summary class="label"><span class="date">07–12/1941</span> — <span class="title">Krieg wird global</span></summary>
@@ -281,12 +293,10 @@
 
 <script>
 (function(){
-  // >>> Maßstab: hier anpassen
-  const PX_PER_YEAR = 300;
-
-  // >>> Lanes (Zeilen) je Seite
-  const LANES_TOP = 3;
-  const LANES_BOTTOM = 3;
+  const DEFAULT_PX_PER_YEAR = 300;      // Fallback, falls data-ppyear fehlt
+  const LANES_TOP = 4;                   // Anzahl Lanes oberhalb
+  const LANES_BOTTOM = 4;                // Anzahl Lanes unterhalb
+  const PADDING = 16;                    // Randpuffer für Labels
 
   const toDate = (s) => {
     const p = (s||'').split('-').map(Number);
@@ -300,7 +310,8 @@
     const start = toDate(track.dataset.start);
     const end = toDate(track.dataset.end);
     const spanYears = Math.max(1, years(start,end));
-    const width = Math.max(track.clientWidth, Math.round(spanYears * PX_PER_YEAR));
+    const ppy = parseFloat(track.dataset.ppyear || DEFAULT_PX_PER_YEAR);
+    const width = Math.max(track.clientWidth, Math.round(spanYears * ppy));
     track.style.width = width + 'px';
 
     // Jahres-Ticks
@@ -312,30 +323,35 @@
       t.appendChild(lab); track.appendChild(t);
     });
 
-    // Lane-Reservierung (letzter x-Rechtsrand je Lane)
+    // Lane-Reservierung (Rechtsrand je Lane)
     const laneRightTop = Array(LANES_TOP).fill(-1e9);
     const laneRightBottom = Array(LANES_BOTTOM).fill(-1e9);
 
-    // Events nach Datum sortieren
-    const evs = Array.from(track.querySelectorAll('details.event')).sort((a,b)=>{
-      return toDate(a.dataset.date) - toDate(b.dataset.date);
-    });
+    const evs = Array.from(track.querySelectorAll('details.event')).sort((a,b)=> toDate(a.dataset.date)-toDate(b.dataset.date));
 
     evs.forEach((ev,i)=>{
       const d = toDate(ev.dataset.date);
       const ratio = (d - start) / (end - start);
       const x = Math.max(0, Math.min(1, ratio)) * width;
-      ev.style.left = Math.round(x) + 'px';
 
-      // gewünschte Seite (oder alternierend)
+      // Seite wählen
       let side = (ev.dataset.side || (i%2 ? 'bottom' : 'top')).toLowerCase();
       if(side!=='top' && side!=='bottom') side='top';
+
+      // Labelbreite messen (vorläufig sichtbar machen)
+      const label = ev.querySelector('.label');
+      const temp = label ? label.cloneNode(true) : null;
+      let labelWidth = 260;
+      if(temp){
+        temp.style.visibility='hidden'; temp.style.position='absolute'; temp.style.left='-9999px';
+        document.body.appendChild(temp);
+        labelWidth = temp.offsetWidth || 260;
+        document.body.removeChild(temp);
+      }
 
       // verfügbare Lane suchen
       const lanes = side==='top' ? laneRightTop : laneRightBottom;
       const maxLanes = side==='top' ? LANES_TOP : LANES_BOTTOM;
-      const label = ev.querySelector('.label');
-      const labelWidth = (label && label.offsetWidth) || 260;
       let lane = 0;
       for(; lane<maxLanes; lane++){
         if(x - lanes[lane] > labelWidth + 24){ break; }
@@ -343,11 +359,18 @@
       if(lane>=maxLanes){ lane = maxLanes-1; }
       lanes[lane] = x + labelWidth;
 
-      // Stem & Dot
+      // Edge-Clamping: Box nicht über Rand hinausragen lassen
+      let leftX = x;
+      if (leftX + labelWidth > width - PADDING) leftX = width - PADDING - labelWidth;
+      if (leftX < PADDING) leftX = PADDING;
+      ev.style.left = Math.round(leftX) + 'px';
+
+      // Stiel & Punkt
       const stem = document.createElement('div'); stem.className='stem';
       const dot = document.createElement('div'); dot.className='dot';
+
       const baseY = track.clientHeight/2;
-      const laneGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-gap')) || 70;
+      const laneGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-gap')) || 90;
       const offset = (lane+1)*laneGap;
 
       if(side==='top'){
