@@ -8,7 +8,7 @@
   :root{
     --bg:#ffffff; --fg:#0f172a; --muted:#5f6368; --line:#c7cacf; --accent:#1a73e8;
     --card:#f7f9fc; --shadow:0 10px 24px rgba(0,0,0,.10);
-    --lane-gap: 90px; /* Abstand zwischen Lanes (mehr = luftiger) */
+    --lane-gap: 90px; /* vertikaler Abstand zwischen den Lanes */
   }
   html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
@@ -31,7 +31,7 @@
     border:1px solid #e6e9ee; border-radius:14px; background:#fff; box-shadow:var(--shadow)}
   .scroller:focus{outline:2px solid var(--accent)}
 
-  /* Track: die mittlere Zeitlinie */
+  /* Track: mittlere Zeitlinie */
   .track{
     position:relative; height:540px; min-width:100%;
     background:linear-gradient(to right, var(--line) 0 100%);
@@ -42,14 +42,14 @@
   .tick{position:absolute; top:calc(50% - 6px); width:1px; height:12px; background:#b7bdc6;}
   .tick .tlabel{position:absolute; top:14px; left:-18px; width:36px; text-align:center; font-size:.82rem; color:#8a919a;}
 
-  /* Ereignis-Container */
+  /* Ereignis-Container (nur die Box; Stiel/Punkt hängen wir am Track an) */
   details.event{ position:absolute; width:290px; }
   details.event summary{ list-style:none; outline:none; cursor:pointer; }
   details.event summary::-webkit-details-marker{display:none}
 
-  /* Stiel + Punkt */
-  .stem{ position:absolute; left:0; width:2px; background:#9db2ff; }
-  .dot{ position:absolute; left:-6px; width:12px; height:12px; border-radius:50%; background:var(--accent);
+  /* Stiel + Punkt (werden dynamisch erzeugt) */
+  .stem{ position:absolute; width:2px; background:#9db2ff; }
+  .dot{ position:absolute; width:12px; height:12px; border-radius:50%; background:var(--accent);
         box-shadow:0 0 0 6px #1a73e81a; }
 
   /* Label-Karte */
@@ -68,15 +68,14 @@
   .content li{margin:.2rem 0}
 
   /* Lanes: vertikale Staffelung ober/unter der Linie */
-  .top    { transform: translateY(calc(-1 * var(--lane) * var(--lane-gap))); }   /* oberhalb */
-  .bottom { transform: translateY(calc(+1 * var(--lane) * var(--lane-gap))); }   /* unterhalb */
+  .top    { transform: translateY(calc(-1 * var(--lane) * var(--lane-gap))); }
+  .bottom { transform: translateY(calc(+1 * var(--lane) * var(--lane-gap))); }
 
   @media (max-width:700px){
     .track{height:600px}
     details.event{width:260px}
     .label{max-width:240px}
   }
-
   @media print{
     .wrap{max-width:100%;margin:0;padding:0 10mm}
     .scroller{overflow:visible; border:0; box-shadow:none}
@@ -88,7 +87,7 @@
 <body>
 <div class="wrap">
   <h1>Zeitleiste (gestaffelte Labels): Weimarer Republik, NS-Herrschaft & Zweiter Weltkrieg</h1>
-  <p class="lead">Labels werden abwechselnd <b>oberhalb</b>/<b>unterhalb</b> in Lanes angeordnet und mit einem Stiel an die Zeitlinie gekoppelt. Pro Abschnitt eigener Maßstab via <code>data-ppyear</code>.</p>
+  <p class="lead">Labels wechseln <b>oberhalb</b>/<b>unterhalb</b> der Mittellinie und sind per Stiel präzise ans Datum gekoppelt. Pro Abschnitt eigener Maßstab via <code>data-ppyear</code>.</p>
   <div class="tools">
     <button class="btn" id="openAll">Alle öffnen</button>
     <button class="btn" id="closeAll">Alle schließen</button>
@@ -107,7 +106,6 @@
            data-end="1933-01-30"
            data-ppyear="320"
            data-ticks="1915,1920,1925,1930">
-        <!-- Events -->
         <details class="event" data-date="1918-11-10" data-side="top">
           <summary class="label"><span class="date">09.–11.11.1918</span> — <span class="title">Novemberrevolution & Abdankung</span></summary>
           <div class="content"><p>Ende der Monarchie; 11.11. Waffenstillstand.</p></div>
@@ -170,7 +168,7 @@
         </details>
         <details class="event" data-date="1933-03-22" data-side="bottom">
           <summary class="label"><span class="date">22.03.1933</span> — <span class="title">KZ Dachau</span></summary>
-          <div class="content"><p>Frühlager für politische Gegner; Ausbau KZ-System.</p></div>
+          <div class="content"><p>Frühlager; Ausbau des KZ-Systems.</p></div>
         </details>
         <details class="event" data-date="1933-04-01" data-side="top">
           <summary class="label"><span class="date">01.04.1933</span> — <span class="title">Boykott jüdischer Geschäfte</span></summary>
@@ -294,9 +292,9 @@
 <script>
 (function(){
   const DEFAULT_PX_PER_YEAR = 300;      // Fallback, falls data-ppyear fehlt
-  const LANES_TOP = 4;                   // Anzahl Lanes oberhalb
-  const LANES_BOTTOM = 4;                // Anzahl Lanes unterhalb
-  const PADDING = 16;                    // Randpuffer für Labels
+  const LANES_TOP = 4;
+  const LANES_BOTTOM = 4;
+  const PADDING = 16;                   // Randpuffer für Label-Box
 
   const toDate = (s) => {
     const p = (s||'').split('-').map(Number);
@@ -327,26 +325,27 @@
     const laneRightTop = Array(LANES_TOP).fill(-1e9);
     const laneRightBottom = Array(LANES_BOTTOM).fill(-1e9);
 
+    // Events nach Datum sortiert
     const evs = Array.from(track.querySelectorAll('details.event')).sort((a,b)=> toDate(a.dataset.date)-toDate(b.dataset.date));
 
     evs.forEach((ev,i)=>{
       const d = toDate(ev.dataset.date);
       const ratio = (d - start) / (end - start);
-      const x = Math.max(0, Math.min(1, ratio)) * width;
+      const x = Math.max(0, Math.min(1, ratio)) * width; // echte Ereignisposition
 
-      // Seite wählen
+      // Seite (oder alternierend)
       let side = (ev.dataset.side || (i%2 ? 'bottom' : 'top')).toLowerCase();
       if(side!=='top' && side!=='bottom') side='top';
 
-      // Labelbreite messen (vorläufig sichtbar machen)
+      // Labelbreite schätzen/messen
       const label = ev.querySelector('.label');
-      const temp = label ? label.cloneNode(true) : null;
+      const tmp = label ? label.cloneNode(true) : null;
       let labelWidth = 260;
-      if(temp){
-        temp.style.visibility='hidden'; temp.style.position='absolute'; temp.style.left='-9999px';
-        document.body.appendChild(temp);
-        labelWidth = temp.offsetWidth || 260;
-        document.body.removeChild(temp);
+      if(tmp){
+        tmp.style.visibility='hidden'; tmp.style.position='absolute'; tmp.style.left='-9999px';
+        document.body.appendChild(tmp);
+        labelWidth = tmp.offsetWidth || 260;
+        document.body.removeChild(tmp);
       }
 
       // verfügbare Lane suchen
@@ -359,34 +358,45 @@
       if(lane>=maxLanes){ lane = maxLanes-1; }
       lanes[lane] = x + labelWidth;
 
-      // Edge-Clamping: Box nicht über Rand hinausragen lassen
+      // Edge-Clamping für die Label-Box (damit sie nicht abgeschnitten wird)
       let leftX = x;
       if (leftX + labelWidth > width - PADDING) leftX = width - PADDING - labelWidth;
       if (leftX < PADDING) leftX = PADDING;
       ev.style.left = Math.round(leftX) + 'px';
 
-      // Stiel & Punkt
-      const stem = document.createElement('div'); stem.className='stem';
-      const dot = document.createElement('div'); dot.className='dot';
-
-      const baseY = track.clientHeight/2;
+      // Vertikale Position der Box
+      const baseY  = track.clientHeight/2;
       const laneGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-gap')) || 90;
-      const offset = (lane+1)*laneGap;
-
+      const offset  = (lane+1)*laneGap;
       if(side==='top'){
-        stem.style.top = (baseY - offset) + 'px';
-        stem.style.height = offset + 'px';
-        dot.style.top = (baseY - 6) + 'px';
         ev.style.top = (baseY - offset - 10) + 'px';
         ev.classList.add('top'); ev.style.setProperty('--lane', lane+1);
       }else{
-        stem.style.top = (baseY) + 'px';
-        stem.style.height = offset + 'px';
-        dot.style.top = (baseY - 6) + 'px';
         ev.style.top = (baseY + offset - 36) + 'px';
         ev.classList.add('bottom'); ev.style.setProperty('--lane', lane+1);
       }
-      ev.appendChild(stem); ev.appendChild(dot);
+
+      // --- FIX: Stiel & Punkt am TRACK platzieren (exakt auf der Mittellinie) ---
+      const stem = document.createElement('div'); stem.className = 'stem';
+      const dot  = document.createElement('div'); dot.className  = 'dot';
+
+      const cx = Math.round(x);          // X-Position exakt am Datum
+      stem.style.left = cx + 'px';
+      dot.style.left  = (cx - 6) + 'px'; // Dot mittig über dem Stiel
+
+      if (side === 'top') {
+        stem.style.top    = (baseY - offset) + 'px';
+        stem.style.height = offset + 'px';
+        dot.style.top     = (baseY - 6) + 'px';
+      } else {
+        stem.style.top    = baseY + 'px';
+        stem.style.height = offset + 'px';
+        dot.style.top     = (baseY - 6) + 'px';
+      }
+
+      track.appendChild(stem);
+      track.appendChild(dot);
+      // --- Ende FIX ---
     });
   });
 
